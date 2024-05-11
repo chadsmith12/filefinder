@@ -6,5 +6,6 @@
 *.out
 
 vendor/
+bin/
 
 go.work
