@@ -56,6 +56,6 @@ func run(cmd *cobra.Command, args []string) {
 	worker := filescanner.NewFileWorker(numberWorkers)
 	worker.StartWorkers(args[0], pattern)
 	for result := range worker.Read() {
-		fmt.Printf("Worker %d %s #%d: %s\n", result.WorkerId, result.File, result.LineNumber, result.Text)
+		fmt.Printf("%s #%d: %s\n", result.File, result.LineNumber, result.Text)
 	}
 }

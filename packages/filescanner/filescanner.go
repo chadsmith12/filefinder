@@ -53,6 +53,7 @@ func NewFileWorker(number int) *FileWorker {
 	}
 }
 
+// Starts the file worker at the specified path, looking for the specified pattern
 func (fw *FileWorker) StartWorkers(filePath string, pattern *regexp.Regexp) {
 	for i := 0; i < fw.numberWorkers; i++ {
 		fw.wg.Add(1)
@@ -65,6 +66,9 @@ func (fw *FileWorker) StartWorkers(filePath string, pattern *regexp.Regexp) {
 	go fw.walkFilePath(filePath, pattern)
 }
 
+// Read waits and starts to read all the results in from the workers.
+// Returns a channel to receive the results in.
+// This channel will close automatically when there are no more results
 func (fw *FileWorker) Read() <-chan Result {
 	returnedResult := make(chan Result)
 	go func() {
