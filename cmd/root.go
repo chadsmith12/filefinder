@@ -41,21 +41,21 @@ func run(cmd *cobra.Command, args []string) {
 		fmt.Println("Invalid usage. Expects starting directory and pattern")
 		os.Exit(1)
 	}
-	
+
 	pattern, err := regexp.Compile(args[1])
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	
+
 	numberWorkers, err := cmd.Flags().GetInt("workers")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to get number of workers, using %d by default...\n", 3)
 		numberWorkers = 3
 	}
 	worker := filescanner.NewFileWorker(numberWorkers)
-	results := worker.StartWorkers(args[0], pattern)
-	for _, result := range results {
-		fmt.Printf("%s #%d: %s\n", result.File, result.LineNumber, result.Text)
+	worker.StartWorkers(args[0], pattern)
+	for result := range worker.Read() {
+		fmt.Printf("Worker %d %s #%d: %s\n", result.WorkerId, result.File, result.LineNumber, result.Text)
 	}
 }
