@@ -4,26 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"io/fs"
-	"math/rand"
 	"os"
 	"path/filepath"
 	"regexp"
 	"sync"
-	"time"
 )
-
-func randomDuration() time.Duration {
-	randomMs := rand.Intn(1000) + 500
-	duration := time.Duration(randomMs) * time.Millisecond
-
-	return duration
-}
-
-func randomBool() bool {
-	random := rand.Intn(100)
-
-	return random > 60
-}
 
 type workData struct {
 	file    string
@@ -108,9 +93,6 @@ func (fw *FileWorker) walkFilePath(filePath string, pattern *regexp.Regexp) {
 
 func (fw *FileWorker) fileWorker(id int) {
 	for workData := range fw.jobs {
-		// if randomBool() {
-		// 	time.Sleep(randomDuration())
-		// }
 		file, err := os.Open(workData.file)
 		if err != nil {
 			fmt.Println(err)

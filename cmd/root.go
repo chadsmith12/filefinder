@@ -6,9 +6,8 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"regexp"
 
-	"github.com/chadsmith12/filefinder.git/packages/filescanner"
+	"github.com/chadsmith12/filefinder.git/packages/worker"
 	"github.com/spf13/cobra"
 )
 
@@ -31,31 +30,16 @@ func Execute() {
 	}
 }
 
-func init() {
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	rootCmd.Flags().IntP("workers", "w", 3, "The number of workers to use to find files. Defauls to 3")
-}
-
 func run(cmd *cobra.Command, args []string) {
 	if len(args) < 2 {
 		fmt.Println("Invalid usage. Expects starting directory and pattern")
 		os.Exit(1)
 	}
 
-	pattern, err := regexp.Compile(args[1])
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	worker := worker.NewFileWorker(args[0], args[1])
+	worker.Start()
 
-	numberWorkers, err := cmd.Flags().GetInt("workers")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to get number of workers, using %d by default...\n", 3)
-		numberWorkers = 3
-	}
-	worker := filescanner.NewFileWorker(numberWorkers)
-	worker.StartWorkers(args[0], pattern)
-	for result := range worker.Read() {
-		fmt.Printf("%s #%d: %s\n", result.File, result.LineNumber, result.Text)
+	for result := range worker.Result() {
+		fmt.Printf("#%d: %s - %s\n", result.LineNumber, result.File, result.Text)
 	}
 }
